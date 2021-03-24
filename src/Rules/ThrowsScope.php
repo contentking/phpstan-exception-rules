@@ -4,6 +4,7 @@ namespace Pepakriz\PHPStanExceptionRules\Rules;
 
 use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\TryCatch;
+use PHPStan\Type\ObjectType;
 use PHPStan\Type\Type;
 use PHPStan\Type\TypeUtils;
 use function array_filter;
@@ -104,9 +105,11 @@ class ThrowsScope
 			foreach ($catches->catches as $catch) {
 				foreach ($catch->types as $type) {
 					$catchType = $type->toString();
-					$isCaught = is_a($exceptionClassName, $catchType, true);
-					$isMaybeCaught = is_a($catchType, $exceptionClassName, true);
-					if (!$isCaught && !$isMaybeCaught) {
+					$isCaught = (new ObjectType($catchType))->isSuperTypeOf(
+						new ObjectType($exceptionClassName)
+					)->yes();
+
+					if (!$isCaught) {
 						continue;
 					}
 
@@ -124,7 +127,11 @@ class ThrowsScope
 		if ($this->throwsAnnotationBlockStack[$this->stackIndex] !== null) {
 			$throwsExceptionClasses = TypeUtils::getDirectClassNames($this->throwsAnnotationBlockStack[$this->stackIndex]);
 			foreach ($throwsExceptionClasses as $throwsExceptionClass) {
-				if (is_a($exceptionClassName, $throwsExceptionClass, true)) {
+				$isCaught = (new ObjectType($throwsExceptionClass))->isSuperTypeOf(
+					new ObjectType($exceptionClassName)
+				)->yes();
+
+				if ($isCaught) {
 					$this->usedThrowsAnnotationsStack[$this->stackIndex][$throwsExceptionClass] = true;
 					return true;
 				}

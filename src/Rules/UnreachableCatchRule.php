@@ -10,8 +10,8 @@ use PhpParser\Node\Stmt\TryCatch;
 use PHPStan\Analyser\Scope;
 use PHPStan\Broker\Broker;
 use PHPStan\Rules\Rule;
+use PHPStan\Type\ObjectType;
 use function array_map;
-use function is_a;
 use function sprintf;
 
 /**
@@ -56,7 +56,7 @@ class UnreachableCatchRule implements Rule
 					}
 
 					foreach ($caughtClasses as $caughtClass) {
-						if (!is_a($catchClass, $caughtClass, true)) {
+						if (!(new ObjectType($caughtClass))->isSuperTypeOf(new ObjectType($catchClass))->yes()) {
 							continue;
 						}
 

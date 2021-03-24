@@ -16,7 +16,6 @@ use PHPStan\Type\Type;
 use PHPStan\Type\TypeCombinator;
 use PHPStan\Type\TypeUtils;
 use PHPStan\Type\VoidType;
-use function is_a;
 
 class DOMDocumentExtension implements DynamicMethodThrowTypeExtension
 {
@@ -27,7 +26,7 @@ class DOMDocumentExtension implements DynamicMethodThrowTypeExtension
 	 */
 	public function getThrowTypeFromMethodCall(MethodReflection $methodReflection, MethodCall $methodCall, Scope $scope): Type
 	{
-		if (!is_a($methodReflection->getDeclaringClass()->getName(), DOMDocument::class, true)) {
+		if (!(new ObjectType(DOMDocument::class))->isSuperTypeOf(new ObjectType($methodReflection->getDeclaringClass()->getName()))->yes()) {
 			throw new UnsupportedClassException();
 		}
 

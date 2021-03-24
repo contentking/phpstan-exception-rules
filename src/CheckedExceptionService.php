@@ -3,9 +3,9 @@
 namespace Pepakriz\PHPStanExceptionRules;
 
 use LogicException;
+use PHPStan\Type\ObjectType;
 use function array_filter;
 use function count;
-use function is_a;
 
 class CheckedExceptionService
 {
@@ -54,7 +54,7 @@ class CheckedExceptionService
 	{
 		if ($this->checkedExceptions !== null) {
 			foreach ($this->checkedExceptions as $checkedException) {
-				if (is_a($exceptionClassName, $checkedException, true)) {
+				if ((new ObjectType($checkedException))->isSuperTypeOf(new ObjectType($exceptionClassName))->yes()) {
 					return true;
 				}
 			}
@@ -63,7 +63,7 @@ class CheckedExceptionService
 		}
 
 		foreach ($this->uncheckedExceptions as $uncheckedException) {
-			if (is_a($exceptionClassName, $uncheckedException, true)) {
+			if ((new ObjectType($uncheckedException))->isSuperTypeOf(new ObjectType($exceptionClassName))->yes()) {
 				return false;
 			}
 		}

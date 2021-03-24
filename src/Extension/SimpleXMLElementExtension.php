@@ -26,7 +26,7 @@ class SimpleXMLElementExtension implements DynamicConstructorThrowTypeExtension
 	 */
 	public function getThrowTypeFromConstructor(MethodReflection $methodReflection, New_ $newNode, Scope $scope): Type
 	{
-		if (is_a($methodReflection->getDeclaringClass()->getName(), SimpleXMLElement::class, true)) {
+		if ((new ObjectType(SimpleXMLElement::class))->isSuperTypeOf(new ObjectType($methodReflection->getDeclaringClass()->getName()))->yes()) {
 			return $this->resolveThrowType($newNode->args, $scope);
 		}
 

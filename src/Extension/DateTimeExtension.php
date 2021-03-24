@@ -18,7 +18,6 @@ use PHPStan\Type\Type;
 use PHPStan\Type\TypeCombinator;
 use PHPStan\Type\TypeUtils;
 use PHPStan\Type\VoidType;
-use function is_a;
 
 class DateTimeExtension implements DynamicConstructorThrowTypeExtension
 {
@@ -29,8 +28,8 @@ class DateTimeExtension implements DynamicConstructorThrowTypeExtension
 	public function getThrowTypeFromConstructor(MethodReflection $methodReflection, New_ $newNode, Scope $scope): Type
 	{
 		if (
-			is_a($methodReflection->getDeclaringClass()->getName(), DateTime::class, true)
-			|| is_a($methodReflection->getDeclaringClass()->getName(), DateTimeImmutable::class, true)
+			(new ObjectType(DateTime::class))->isSuperTypeOf(new ObjectType($methodReflection->getDeclaringClass()->getName()))->yes()
+			|| (new ObjectType(DateTimeImmutable::class))->isSuperTypeOf(new ObjectType($methodReflection->getDeclaringClass()->getName()))->yes()
 		) {
 			return $this->resolveThrowType($newNode->args, $scope);
 		}
